@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Contact;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class ContactController extends Controller
 {
@@ -25,8 +26,13 @@ class ContactController extends Controller
             'message' => 'required|string',
         ]);
 
-
+        // Store contact info in Database
         Contact::create($request->all());
+        // Send Email
+        Mail::send('emails.contact', ['data' => $data], function ($message) use ($data) {
+            $message->to('receiver@example.com')
+                    ->subject('New Contact Form Submission');
+        });
 
         return redirect()->back()->with('success', 'Message sent successfully!');
     }
