@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Contact;
+use App\Mail\ContactMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -11,7 +12,7 @@ class ContactController extends Controller
     // show the contact form
     public function create()
     {
-    return view('contact');
+        return view('contact');
     }
 
 
@@ -28,11 +29,14 @@ class ContactController extends Controller
 
         // Store contact info in Database
         Contact::create($request->all());
-        // Send Email
-        Mail::send('emails.contact', ['data' => $data], function ($message) use ($data) {
-            $message->to('receiver@example.com')
-                    ->subject('New Contact Form Submission');
-        });
+        // Send email using default Mail facade with a Blade template
+        // Mail::send('emails.contact', ['data' => $data], function ($message) use ($data) {
+        //     $message->to('receiver@example.com')
+        //             ->subject('New Contact Form Submission');
+        // });
+
+        // Send email using Mailable class (ContactMail)
+        Mail::to($request->email)->send(new ContactMail($data));
 
         return redirect()->back()->with('success', 'Message sent successfully!');
     }
