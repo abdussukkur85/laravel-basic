@@ -36,7 +36,11 @@ class ContactController extends Controller
         // });
 
         // Send email using Mailable class (ContactMail)
-        Mail::to($request->email)->send(new ContactMail($data));
+        // Mail::to($request->email)->send(new ContactMail($data));
+
+
+        // send mail using Queue
+        Mail::to($request->email)->queue(new ContactMail($data));
 
         return redirect()->back()->with('success', 'Message sent successfully!');
     }
