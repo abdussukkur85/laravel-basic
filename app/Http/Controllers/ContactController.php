@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Contact;
 use App\Mail\ContactMail;
+use App\Rules\NoBadWords;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use App\Services\ContactRateLimitService;
 
 class ContactController extends Controller
 {
@@ -20,11 +22,11 @@ class ContactController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'company' => 'nullable|string|max:255',
-            'subject' => 'nullable|string|max:255',
-            'message' => 'required|string',
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
+            'company' => ['nullable', 'string', 'max:255'],
+            'subject' => ['nullable', 'string', 'max:255'],
+            'message' => ['required', 'string', new NoBadWords],
         ]);
 
         // Store contact info in Database
@@ -41,6 +43,11 @@ class ContactController extends Controller
 
         // send mail using Queue
         Mail::to($request->email)->queue(new ContactMail($data));
+
+        // Success → update rate limits
+        $ip = $request->ip();
+        ContactRateLimitService::hitShortTerm($ip);
+        ContactRateLimitService::hitLongTerm($ip);
 
         return redirect()->back()->with('success', 'Message sent successfully!');
     }
