@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContactController;
 
 Route::get('/test', function () {
-    return view('welcome');
+    return config('mail.admin_email', env('ADMIN_EMAIL'));
 });
 
 Route::get('contact', [ContactController::class,'create'])->name('contact.create');

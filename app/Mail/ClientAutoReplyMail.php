@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ContactMail extends Mailable implements ShouldQueue
+class ClientAutoReplyMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -18,7 +18,6 @@ class ContactMail extends Mailable implements ShouldQueue
     /**
      * Create a new message instance.
      */
-
     public function __construct($data)
     {
         $this->data = $data;
@@ -30,8 +29,7 @@ class ContactMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Contact Mail',
-            from : 'contact@rony.com'
+            subject: 'Thank you for contacting us!',
         );
     }
 
@@ -41,7 +39,10 @@ class ContactMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            view: 'emails.contact',
+            view: 'emails.client_auto_reply',
+            with: [
+                'data' => $this->data,
+            ],
         );
     }
 
