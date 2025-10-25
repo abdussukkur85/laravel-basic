@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Contact;
+use App\Models\EmailList;
+use App\Rules\NoBadWords;
 use Illuminate\Http\Request;
 use App\Traits\ApiResponseTrait;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
-use App\Rules\NoBadWords; // যদি custom rule থাকে
 
 class ContactController extends Controller
 {
@@ -41,6 +42,11 @@ class ContactController extends Controller
         $validated = $validator->validated();
 
         $contact = Contact::create($validated);
+
+        EmailList::firstOrCreate(
+            ['email' => $contact->email],
+            ['contact_id' => $contact->id]
+        );
 
         return $this->successResponse($contact, 'Message submitted successfully.', 201);
     }
